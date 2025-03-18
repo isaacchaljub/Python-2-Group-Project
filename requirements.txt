@@ -1,0 +1,10 @@
+streamlit
+pandas
+polars
+plotly
+numpy
+scikit-learn
+xgboost
+simfin
+python-dotenv
+requests

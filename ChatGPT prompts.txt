@@ -1,0 +1,54 @@
+1.
+
+I have a class with function defined in financials.py and I'm building a streamlit app to display information on different pages.
+
+The structure is as follows:
+
+GP2
+|-financials.py
+|-pages
+       |-plot.py
+
+I'm trying to call financials.py in plot.py using import financials, but it's not recognizing it
+
+
+2.
+My Date column on PRI was a string of dates: '2019-04-11'. I called Pri=PRI.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d')) but it's giving it back to me with hours, which I don't want. How can I enforce to have only dates?
+
+3.
+https://docs.streamlit.io/get-started/tutorials/create-a-multipage-app
+
+According to these instructions, what's missing from my scripts so that 1_graphs.py appears as part of Hello.py and a multi-page structure?
+
+4.
+How can I display a text and a numerical value in streamlit so that they're in the center of the page, and are stylized?
+
+5.
+How can I include a checkbox in streamlit, such that if it's checked I perform a function and if it's not the function ceases to execute?
+
+6.
+I built a streamlit app locally using both polars and pandas for different dataframe management parts. When I ran it locally using streamlit run xxxx.py it worked fine. I deployed my app to streamlit cloud to be able to serve it over the web, but now I got the error: 
+
+ModuleNotFoundError: No module named 'polars'
+
+2025-03-17 10:15:14.895 Uncaught app execution
+
+Traceback (most recent call last):
+
+  File "/home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+
+    result = func()
+
+             ^^^^^^
+
+  File "/home/adminuser/venv/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+
+    exec(code, module.__dict__)
+
+  File "/mount/src/gp_python2/pages/2_Latest.py", line 1, in <module>
+
+    import polars as pl
+
+ModuleNotFoundError: No module named 'polars'
+
+How can I solve the missing module error? My scripts also use custom built scripts as modules, so II have to make sure it can use both standard libraries (polars, etc) and my own scripts (they are all ulpoaded to github and bundled up as I ran it locally on my pc)
