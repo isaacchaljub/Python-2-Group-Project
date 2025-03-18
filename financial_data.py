@@ -23,38 +23,6 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 ###########################################################
 
-# try:
-#     current_dir = os.path.dirname(os.path.abspath(__file__))
-
-#     csv_path_companies = os.path.join(current_dir, 'us-companies.csv')
-#     def download_large_file():
-#         url = "https://github.com/isaacchaljub/Python-2-Group-Project/releases/download/v1.0.0/us-shareprices-daily.csv"
-#         local_filename = "us-shareprices-daily.csv"
-
-#         response = requests.get(url, stream=True)
-#         response.raise_for_status()
-
-#         with open(local_filename, "wb") as f:
-#             for chunk in response.iter_content(chunk_size=8192):
-#                 f.write(chunk)
-
-#         return local_filename
-
-
-#     csv_path_prices = download_large_file()
-
-#     COM=pl.read_csv(csv_path_companies, separator=';')
-#     PRI=pl.read_csv(csv_path_prices, separator=';')
-#     PRI=PRI.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d').cast(pl.Date))
-
-#     COM=COM.drop_nulls(subset=['Ticker'])
-# except Exception as e:
-#             print(f'Error while initializing the environment:{e}')
-
-
-
-
-
 class FinancialData():
     def __init__(self, chosen_companies, com, pri):
         '''
