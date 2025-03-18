@@ -28,7 +28,7 @@ try:
 
     csv_path_companies = os.path.join(current_dir, 'us-companies.csv')
     def download_large_file():
-        url = "https://github.com/isaacchaljub/Python_2_Group_Project/releases/download/v1.0.0/us-shareprices-daily.csv"
+        url = "https://github.com/isaacchaljub/Python-2-Group-Project/releases/download/v1.0.0/us-shareprices-daily.csv"
         local_filename = "us-shareprices-daily.csv"
 
         response = requests.get(url, stream=True)
