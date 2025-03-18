@@ -52,3 +52,28 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'polars'
 
 How can I solve the missing module error? My scripts also use custom built scripts as modules, so II have to make sure it can use both standard libraries (polars, etc) and my own scripts (they are all ulpoaded to github and bundled up as I ran it locally on my pc)
+
+7.
+I got this mail from github
+
+You’ve used 100% of your data plan for Git LFS on your personal account isaacchaljub. Please purchase additional data packs to cover your bandwidth and storage usage:
+
+  https://github.com/account/billing/data/upgrade
+
+Build software better, together
+GitHub is where people build software. More than 150 million people use GitHub to discover, fork, and contribute to over 420 million projects.
+github.com
+
+
+Current usage as of 18 Mar 2025 10:35AM UTC:
+
+  Bandwidth: 1.14 GB / 1 GB (113%)
+  Storage: 0.38 GB / 1 GB (38%)
+
+
+Remember I asked about uploading a 395MB file?
+
+I'm worried because I still need to keep using that file but can't pay. How else can I overcome this issue?
+
+8.
+How can I modify streamlit so instead of it printing "running function()" I can print "Initializing"
