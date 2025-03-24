@@ -2,19 +2,54 @@ import polars as pl
 import streamlit as st
 import plotly.express as px
 
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from financial_data import COM, PRI, FinancialData
+from financial_data import FinancialData
 
 
 ###########################################################
-
 st.set_page_config(layout='wide', page_title="Historical financial data", page_icon="📈")
 
 #st.markdown("# Plotting Page")
 st.sidebar.header("Plotting Page")
+
+
+import requests
+def download_large_file():
+    url = "https://github.com/isaacchaljub/Python-2-Group-Project/releases/download/v1.0.0/us-shareprices-daily.csv"
+    local_filename = "us-shareprices-daily.csv"
+
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+
+    with open(local_filename, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+
+    return local_filename
+
+
+@st.cache_data()
+def init_files():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path_companies = os.path.join(script_dir, '..', 'us-companies.csv')
+    csv_path_prices = download_large_file()
+
+    COM=pl.read_csv(csv_path_companies, separator=';')
+    PRI=pl.read_csv(csv_path_prices, separator=';')
+    PRI=PRI.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d').cast(pl.Date))
+
+    COM=COM.drop_nulls(subset=['Ticker'])
+
+    return COM,PRI
+
+COM, PRI=init_files()
+
+
+
 
 
 # @st.cache_data
@@ -38,8 +73,8 @@ def plot_stock_data():
         
 
         #print(tk)
-        fp=FinancialData(tk, start_date=start_str, end_date=end_str)
-        data=fp.get_historical_data()
+        fp=FinancialData(tk,COM,PRI)
+        data=fp.get_historical_data(start_str, end_str)
 
         ## PLOT FIGURE 1 ##
         fig1 = px.line(
@@ -56,7 +91,7 @@ def plot_stock_data():
         st.plotly_chart(fig1, use_container_width=True)
 
         if run_function:
-            result=fp.get_pl_sim()
+            result=fp.get_pl_sim(start,end)
             with st.container():
                 st.write(result)
     except Exception as e:
