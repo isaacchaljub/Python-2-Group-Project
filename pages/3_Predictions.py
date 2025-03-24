@@ -127,7 +127,7 @@ def plot_predicted_data():
 
         st.plotly_chart(fig, use_container_width=True)
         st.metric(label='RMSE Score for the predictions',value=np.round(rmse(data['returns'],preds['returns']),2))
-        st.metric(label='R-Squared Score for the predictions',value=np.round(mean_absolute_error(data['returns'],preds['returns']),2))
+        st.metric(label='MAE Score for the predictions',value=np.round(mean_absolute_error(data['returns'],preds['returns']),2))
     except Exception as e:
             print(f'Error while calling plot_predicted_data:{e}')
 
