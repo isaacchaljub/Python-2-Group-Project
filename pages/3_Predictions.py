@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
-from sklearn.metrics import root_mean_squared_error as rmse, r2_score
+from sklearn.metrics import root_mean_squared_error as rmse, mean_absolute_error
 import numpy as np
 
 import sys
@@ -127,7 +127,7 @@ def plot_predicted_data():
 
         st.plotly_chart(fig, use_container_width=True)
         st.metric(label='RMSE Score for the predictions',value=np.round(rmse(data['returns'],preds['returns']),2))
-        st.metric(label='R-Squared Score for the predictions',value=np.round(r2_score(data['returns'],preds['returns']),2))
+        st.metric(label='R-Squared Score for the predictions',value=np.round(mean_absolute_error(data['returns'],preds['returns']),2))
     except Exception as e:
             print(f'Error while calling plot_predicted_data:{e}')
 
