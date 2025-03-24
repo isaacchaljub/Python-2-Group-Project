@@ -28,9 +28,9 @@ class FinancialData():
         '''
         chosen_companies : List of the companies the analysis will be performed on.
 
-        start_date : initial date of the historical data. If None, retrieves from the beginning of the available information. Data starts on '2019-04-08'
+        com : A Polars dataframe containing the information of the companies
 
-        end_date : final date of the historical data. If None, retrieves until the end of the available information. Data ends on '2024-03-11'
+        end_date : A Polars dataframe containing the information of the stock prices
         
         '''
         

@@ -29,6 +29,13 @@ try:
 
         We hope you have fun! If you have any concerns or doubts, please feel
         free to contact us at fin_tool@gmail.com
+
+
+        This tool was created by a team composed of Pablo Gallegos, CFA; Isaac
+        Chaljub, Maine Isasi, Margarida Pereira, and Sanjo Joy. We integrate
+        knwoledge from different areas, which pushed us to consider how we could
+        make it as good as possible for the everyday user.
+
     """
     )
 except Exception as e:
