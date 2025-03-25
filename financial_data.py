@@ -3,7 +3,7 @@ import polars as pl
 import numpy as np
 import requests
 
-from preprocessing import bulk_preprocessing, streamed_preprocessing
+from preprocessing import streamed_preprocessing
 
 
 from xgboost import XGBRegressor
@@ -24,13 +24,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 ###########################################################
 
 class FinancialData():
-    def __init__(self, chosen_companies, com, pri):
+    def __init__(self, chosen_companies, bulk_data):
         '''
         chosen_companies : List of the companies the analysis will be performed on.
 
-        com : A Polars dataframe containing the information of the companies
-
-        end_date : A Polars dataframe containing the information of the stock prices
+        bulk_data : A Polars dataframe containing the preprocessed bulk data
         
         '''
         
@@ -38,11 +36,9 @@ class FinancialData():
             raise ValueError("The chosen companies' list cannot be empty")
         
         try:
-            self.com=com
-            self.pri=pri
+            self.bulk_data=bulk_data
             self.chosen_companies=chosen_companies
             self.__api_key = os.getenv('api_key')
-            self.companies, self.prices,  = self.__load_datasets__()
             self.new_data=None
             self.data=self.get_historical_data()
             self.updateable_data=self.get_historical_data()
@@ -63,7 +59,7 @@ class FinancialData():
                 else:
                     start_date=pd.to_datetime(start_date, format='%Y-%m-%d')
             else:
-                start_date=self.pri['Date'].min()
+                start_date=self.bulk_data['Date'].min()
 
             if end_date is not None:
                 if not date_format.match(end_date):
@@ -71,7 +67,7 @@ class FinancialData():
                 else:
                     end_date=pd.to_datetime(end_date, format='%Y-%m-%d')
             else:
-                end_date=self.pri['Date'].max()
+                end_date=self.bulk_data['Date'].max()
             
             if end_date < start_date:
                 raise ValueError('end_date can not be earlier than start date')
@@ -80,21 +76,20 @@ class FinancialData():
             print(f'Error parsing the dates:{e}')
 
         try:
-            companies=self.com
-            prices=self.pri
+            data=self.bulk_data
 
             #prices=prices.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d').cast(pl.Date))
 
-            if start_date==prices['Date'].min() and end_date==prices['Date'].max(): #If no start or end date are specified
-                prices=prices
-            elif start_date==prices['Date'].min() and end_date!=prices['Date'].max(): #If no start date is specified
-                prices=prices.filter(pl.col('Date')<=end_date)
-            elif start_date!=prices['Date'].min() and end_date==prices['Date'].max(): #If no end date is specified
-                prices=prices.filter(pl.col('Date')>=start_date)
+            if start_date==data['Date'].min() and end_date==data['Date'].max(): #If no start or end date are specified
+                data=data
+            elif start_date==data['Date'].min() and end_date!=data['Date'].max(): #If no start date is specified
+                data=data.filter(pl.col('Date')<=end_date)
+            elif start_date!=data['Date'].min() and end_date==data['Date'].max(): #If no end date is specified
+                data=data.filter(pl.col('Date')>=start_date)
             else: #If both dates are specified
-                prices=prices.filter((pl.col('Date')>=start_date)&(pl.col('Date')<=end_date))
+                data=data.filter((pl.col('Date')>=start_date)&(pl.col('Date')<=end_date))
 
-            return companies, prices
+            return data
         
         except Exception as e:
             print(f'Error Loading datasets:{e}')
@@ -107,9 +102,10 @@ class FinancialData():
         Dataframe with consolidated and preprocessed historical information
         '''
         try:
-            companies,prices=self.__load_datasets__(start_date,end_date)
-            self.data=bulk_preprocessing(companies, prices, self.chosen_companies)
-            return bulk_preprocessing(companies, prices, self.chosen_companies)
+            data=self.__load_datasets__(start_date,end_date)
+            data=data.to_pandas().rename(columns={'Date':'date'}).set_index('date')
+            self.data=data
+            return data
         except Exception as e:
             print(f'Error while fetching historical data: {e}')
     
@@ -155,7 +151,10 @@ class FinancialData():
 
             stream=sf.load_shareprices(market='us',variant='latest');   
 
-            new=streamed_preprocessing(self.companies, stream, self.chosen_companies)
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            csv_path_companies = os.path.join(script_dir, 'us-companies.csv')
+
+            new=streamed_preprocessing(pl.read_csv(csv_path_companies, separator=';'), stream, self.chosen_companies)
 
             self.new_data=new
             return new

@@ -19,8 +19,8 @@ st.sidebar.header("Plotting Page")
 
 import requests
 def download_large_file():
-    url = "https://github.com/isaacchaljub/Python-2-Group-Project/releases/download/v1.0.0/us-shareprices-daily.csv"
-    local_filename = "us-shareprices-daily.csv"
+    url = "https://github.com/isaacchaljub/Python-2-Group-Project/releases/download/v3.0.0/bulk_data.parquet"
+    local_filename = "bulk_data.parquet"
 
     response = requests.get(url, stream=True)
     response.raise_for_status()
@@ -32,37 +32,41 @@ def download_large_file():
     return local_filename
 
 
+
 @st.cache_data()
-def init_files():
+def load_info():
+    parquet_path_prices = download_large_file()
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path_companies = os.path.join(script_dir, '..', 'us-companies.csv')
-    csv_path_prices = download_large_file()
+    csv_path_companies = os.path.join(script_dir,'..', 'us-companies.csv')
 
-    COM=pl.read_csv(csv_path_companies, separator=';')
-    PRI=pl.read_csv(csv_path_prices, separator=';')
-    PRI=PRI.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d').cast(pl.Date))
+    data=pl.read_parquet(parquet_path_prices)
+    data=data.with_columns(pl.col('ticker').cast(str))
+    #data=data.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d').cast(pl.Date))
+    companies=pl.read_csv(csv_path_companies, separator=';')[['Ticker', 'Company Name']]#.slice(76,None)#['Company Name']
 
-    COM=COM.drop_nulls(subset=['Ticker'])
+    data=data.join(companies, left_on='ticker', right_on='Ticker', how='left')
 
-    return COM,PRI
+    # data=data.to_pandas()
+    # data=data.rename(columns={'Date':'date'})
+    # data.set_index('date', inplace=True)
 
-COM, PRI=init_files()
+    return data
 
-
+bulk_data=load_info()
 
 
 
 # @st.cache_data
 def plot_stock_data():
     try:
-        comps = st.sidebar.selectbox("Select Company", COM['Company Name'].to_list())
-        tk=COM.filter(pl.col('Company Name')==comps)['Ticker'].to_list()
+        comps = st.sidebar.selectbox("Select Company", bulk_data['Company Name'].to_list())
+        tk=bulk_data.filter(pl.col('Company Name')==comps)['ticker'].to_list()
         #Pri=PRI.with_columns(pl.col('Date').str.to_datetime('%Y-%m-%d').cast(pl.Date))
 
-        start= st.sidebar.date_input(label='start date',value=PRI.filter(pl.col('Ticker').is_in(tk))['Date'].min(), key='start_date')
+        start= st.sidebar.date_input(label='start date',value=bulk_data.filter(pl.col('ticker').is_in(tk))['Date'].min(), key='start_date')
         #start= st.sidebar.time_input(label='start date',value=None)
 
-        end= st.sidebar.date_input(label='start date',value=PRI.filter(pl.col('Ticker').is_in(tk))['Date'].max(), key='end_date')
+        end= st.sidebar.date_input(label='start date',value=bulk_data.filter(pl.col('ticker').is_in(tk))['Date'].max(), key='end_date')
         #end= st.sidebar.time_input(label='end date',value=None)
 
         run_function = st.checkbox("Perform P&L analysis")
@@ -73,7 +77,7 @@ def plot_stock_data():
         
 
         #print(tk)
-        fp=FinancialData(tk,COM,PRI)
+        fp=FinancialData(tk,bulk_data)
         data=fp.get_historical_data(start_str, end_str)
 
         ## PLOT FIGURE 1 ##
